@@ -15,7 +15,7 @@ const categoryRoute = require("./routes/categoryRoute");
 // express app
 const app = express();
 // express app
-
+dbConnection();
 //********* middelwares start********** *//
 app.use(express.json());
 
