@@ -1,4 +1,4 @@
-const mongoose = require("mongoose");
+const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
 //(1) create schema ******** schema start*******//
@@ -6,10 +6,10 @@ const categorySchema = new Schema(
   {
     name: {
       type: String,
-      required: [true, "Category name required"],
-      unique: [true, "Category name must be unique"],
-      minlength: [3, "too short 3< Category name <32"],
-      maxlength: [32, "too long 3< Category name <32"],
+      required: [true, 'Category name required'],
+      unique: [true, 'Category name must be unique'],
+      minlength: [3, 'too short Category name'],
+      maxlength: [32, 'too long Category name'],
     },
     //A and B => if it's a url i want to send it to the frontend i will use "slug"=>which makes the url => a-and-b
     slug: {
@@ -23,7 +23,7 @@ const categorySchema = new Schema(
 //******** schema end*******//
 
 //(2) create model ********* model start ******//
-const categoryModel = mongoose.model("category", categorySchema);
+const categoryModel = mongoose.model('category', categorySchema);
 // *********** model end *********//
 
 module.exports = categoryModel;

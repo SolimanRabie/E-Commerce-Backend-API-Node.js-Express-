@@ -1,15 +1,20 @@
-const express = require("express");
+const express = require('express');
+const morgan = require('morgan');
+const dotenv = require('dotenv'); // if the file name is only => .env
+dotenv.config({ path: './config.env' }); // should be add as the file name is 'config.env'
 
-const morgan = require("morgan");
-const dotenv = require("dotenv"); // if the file name is only => .env
-dotenv.config({ path: "./config.env" }); // should be add as the file name is 'config.env'
+// ********** import from Start**********//
+const globalError = require('./middelWares/errorMiddelware');
+const ApiError = require('./utils/apiError');
+// ********** import from End**********//
 
 // ********** import DB start******* //
-const dbConnection = require("./config/database");
+const dbConnection = require('./config/database');
 // ********** import DB End******* //
 
 // ********** import Routes start**********//
-const categoryRoute = require("./routes/categoryRoute");
+const categoryRoute = require('./routes/categoryRoute');
+const { Error } = require('mongoose');
 // ********** import Routes End**********//
 
 // express app
@@ -19,17 +24,34 @@ dbConnection();
 //********* middelwares start********** *//
 app.use(express.json());
 
-if (process.env.NODE_ENV === "development") {
-  app.use(morgan("dev"));
-  console.log("mode : ", process.env.NODE_ENV);
+if (process.env.NODE_ENV === 'development') {
+  app.use(morgan('dev'));
+  console.log('mode : ', process.env.NODE_ENV);
 }
 //********* middelwares end********** *//
 
 //********* Mount Routes Start***********//
-app.use("/api/v1/categories", categoryRoute);
+app.use('/api/v1/categories', categoryRoute);
+
+app.use((req, res, next) => {
+  // const err = new Error(`can't find this route : ${req.originalUrl}`);
+  next(new ApiError(`can't find this route : ${req.originalUrl}`, 400));
+});
 //********* Mount Routes End***********//
 
+//The default error handler for express
+app.use(globalError);
+
 const PORT = process.env.PORT || 8000;
-app.listen(PORT, () => {
-  console.log("app running on port : ", PORT);
+const server = app.listen(PORT, () => {
+  console.log('app running on port : ', PORT);
+});
+
+// Handel rejections outside express
+process.on('unhandeledRejection', (err) => {
+  console.error(`error : ${err.name} | ${err.message}`);
+  server.close(() => {
+    console.error(`shutting down`);
+    process.exit(1);
+  });
 });

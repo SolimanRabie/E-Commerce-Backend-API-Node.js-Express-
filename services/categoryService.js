@@ -1,7 +1,8 @@
 //****** imports start********* */
-const Category = require("../models/categoryModel");
-const slugify = require("slugify");
-const asyncHandler = require("express-async-handler");
+const Category = require('../models/categoryModel');
+const slugify = require('slugify');
+const asyncHandler = require('express-async-handler');
+const ApiError = require('../utils/apiError');
 
 //****** imports End********* */
 
@@ -11,7 +12,7 @@ const asyncHandler = require("express-async-handler");
 exports.getCategories = asyncHandler(async (req, res) => {
   const page = req.query.page * 1 || 1; // * 1 => to convert it to number
   const limit = req.query.limit * 1 || 0;
-  const skip = page - 1;
+  const skip = (page - 1) * limit;
   const categories = await Category.find({}).skip(skip).limit(limit);
   res.status(200).json({ results: categories.length, page, data: categories });
 });
@@ -20,11 +21,12 @@ exports.getCategories = asyncHandler(async (req, res) => {
 //****** Get Spicified Category Start*******/
 // @ Route Get /api/v1/Categories/:id
 // @ Access Public
-exports.getCategory = asyncHandler(async (req, res) => {
+exports.getCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const category = await Category.findById(id);
   if (!category) {
-    res.status(404).json({ msg: "cat'n find this category of id : ", id });
+    // res.status(404).json({ msg: "cat'n find this category of id : ", id });
+    return next(new ApiError(`cat'n find this category of id : ${id}`, 404));
   }
   res.status(200).json({ data: category });
 });
@@ -35,7 +37,7 @@ exports.getCategory = asyncHandler(async (req, res) => {
 // @ Access Private
 exports.createCategory = asyncHandler(async (req, res) => {
   const name = req.body.name;
-  console.log("name: ", name);
+  console.log('name: ', name);
   const category = await Category.create({ name, slug: slugify(name) });
   res.status(201).json({ data: category });
 });
@@ -44,7 +46,7 @@ exports.createCategory = asyncHandler(async (req, res) => {
 //******* Update Category Start*******/
 // @ Route Put /api/v1/Categories/:id
 // @ Access Private
-exports.updateCategory = asyncHandler(async (req, res) => {
+exports.updateCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
   const category = await Category.findByIdAndUpdate(
@@ -54,9 +56,7 @@ exports.updateCategory = asyncHandler(async (req, res) => {
   );
 
   if (!category) {
-    return res
-      .status(404)
-      .json({ msg: "cat'n find this category of id : ", id });
+    return next(new ApiError(`cat'n find this category of id : ${id}`, 404));
   }
   res.status(200).json({ data: category });
 });
@@ -65,12 +65,12 @@ exports.updateCategory = asyncHandler(async (req, res) => {
 //******* Delete Category Start*******/
 // @ Route post /api/v1/Categories/:id
 // @ Access Private
-exports.deleletedCategory = asyncHandler(async (req, res) => {
+exports.deleletedCategory = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const category = await Category.findByIdAndDelete(id);
-  console.log("category", category);
+  console.log('category', category);
   if (!category) {
-    res.status(404).json({ msg: "cat'n find this category of id :" });
+    return next(new ApiError(`cat'n find this category of id : ${id}`, 404));
   }
   res.status(204).send();
 });

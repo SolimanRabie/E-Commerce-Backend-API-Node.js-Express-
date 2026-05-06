@@ -1,4 +1,4 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
 
 //******** Import start *********/
@@ -8,24 +8,35 @@ const {
   getCategory,
   updateCategory,
   deleletedCategory,
-} = require("../services/categoryService");
+} = require('../services/categoryService');
+
+//*******validation middelware start*****//
+const {
+  getCategoryValidator,
+  createCategoryValidator,
+  updateCategoryValidator,
+  deleteCategoryValidator,
+} = require('../utils/validators/categoryValidator');
+//*******validation middelware start*****//
+
 //******** Import End *********/
-//********* Routes start***********//
-//**Get Categories start***/
-router.route("/").get(getCategories).post(createCategory);
-//**Get Categories End***/
 
-//**Get Category Start***/
-router.route("/:id").get(getCategory);
-//**Get Category End***/
+//********* Routes Start***********//
+//**Routre '/' Start***/
+router
+  .route('/')
+  .get(getCategories) //** get getCategories */
+  .post(createCategoryValidator, createCategory); //** Create category */
+//**Routre '/' End***/
 
-//**Update Category Start***/
-router.route("/:id").get(updateCategory).put(updateCategory);
-//**Update Category End***/
+//**Route '/:id'  Start***/
+router
+  .route('/:id')
+  .get(getCategoryValidator, getCategory) //** get spicified category */
+  .put(updateCategoryValidator, updateCategory) //**Update Category
+  .delete(deleteCategoryValidator, deleletedCategory); //**Delete Category
+//**Route '/:id' End***/
 
-//**Delete Category Start***/
-router.route("/:id").get(deleletedCategory).delete(deleletedCategory);
-//**Delete Category End***/
 //********* Routes end***********//
 
 module.exports = router;
