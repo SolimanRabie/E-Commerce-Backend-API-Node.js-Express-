@@ -4,20 +4,20 @@ const router = express.Router();
 
 //******** Import start *********/
 const {
-  getCategories,
-  createCategory,
-  getCategory,
-  updateCategory,
-  deleletedCategory,
-} = require('../services/categoryService');
+  getBrands,
+  createBrand,
+  getBrand,
+  updateBrand,
+  deletebrand,
+} = require('../services/brandService');
 
 //*******validation middelware start*****//
 const {
-  getCategoryValidator,
-  createCategoryValidator,
-  updateCategoryValidator,
-  deleteCategoryValidator,
-} = require('../utils/validators/categoryValidator');
+  getBrandValidator,
+  createBrandValidator,
+  updateBrandValidator,
+  deleteBrandValidator,
+} = require('../utils/validators/brandValidator');
 //*******validation middelware start*****//
 
 //******* Nested Route Start********/
@@ -32,16 +32,16 @@ router.use('/:categoryId/subcategories', subCategoriesRoute);
 //**Routre '/' Start***/
 router
   .route('/')
-  .get(getCategories) //** get getCategories */
-  .post(createCategoryValidator, createCategory); //** Create category */
+  .get(getBrands) //** get getBrands */
+  .post(createBrandValidator, createBrand); //** Create category */
 //**Routre '/' End***/
 
 //**Route '/:id'  Start***/
 router
   .route('/:id')
-  .get(getCategoryValidator, getCategory) //** get spicified category */
-  .put(updateCategoryValidator, updateCategory) //**Update Category
-  .delete(deleteCategoryValidator, deleletedCategory); //**Delete Category
+  .get(getBrandValidator, getBrand) //** get spicified Brand */
+  .put(updateBrandValidator, updateBrand) //**Update Brand
+  .delete(deleteBrandValidator, deletebrand); //**Delete Brand
 //**Route '/:id' End***/
 
 //********* Routes end***********//

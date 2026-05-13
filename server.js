@@ -1,6 +1,8 @@
 const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv'); // if the file name is only => .env
+const { Error } = require('mongoose');
+
 dotenv.config({ path: './config.env' }); // should be add as the file name is 'config.env'
 
 // ********** import from Start**********//
@@ -14,7 +16,8 @@ const dbConnection = require('./config/database');
 
 // ********** import Routes start**********//
 const categoryRoute = require('./routes/categoryRoute');
-const { Error } = require('mongoose');
+const subCategoryRoute = require('./routes/subCategoryRoute');
+const brandRoute = require('./routes/brandRoute');
 // ********** import Routes End**********//
 
 // express app
@@ -32,6 +35,8 @@ if (process.env.NODE_ENV === 'development') {
 
 //********* Mount Routes Start***********//
 app.use('/api/v1/categories', categoryRoute);
+app.use('/api/v1/subcategories', subCategoryRoute);
+app.use('/api/v1/brands', brandRoute);
 
 app.use((req, res, next) => {
   // const err = new Error(`can't find this route : ${req.originalUrl}`);
