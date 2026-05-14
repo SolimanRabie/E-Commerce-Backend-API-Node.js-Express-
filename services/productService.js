@@ -38,6 +38,7 @@ exports.getProduct = asyncHandler(async (req, res, next) => {
 exports.createProduct = asyncHandler(async (req, res) => {
   req.body.slug = slugify(req.body.title);
   const product = await Product.create(req.body);
+  console.log(product);
   res.status(201).json({ data: product });
 });
 //******* Create Product End*********/
@@ -47,7 +48,9 @@ exports.createProduct = asyncHandler(async (req, res) => {
 // @ Access Private
 exports.updateProduct = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
-  req.body.slug = slugify(req.body.title);
+  if (req.body.title) {
+    req.body.slug = slugify(req.body.title);
+  }
   const product = await Product.findByIdAndUpdate({ _id: id }, req.body, {
     new: true,
   });
