@@ -23,6 +23,7 @@ const productRoute = require('./routes/productsRoute');
 
 // express app
 const app = express();
+app.set('query parser', 'extended'); // for filtering products
 // express app
 dbConnection();
 //********* middelwares start********** *//

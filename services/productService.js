@@ -1,6 +1,7 @@
 //****** imports start********* */
 const slugify = require('slugify');
 const asyncHandler = require('express-async-handler');
+const { json } = require('express');
 const ApiError = require('../utils/apiError');
 const Product = require('../models/productModel');
 
@@ -10,10 +11,30 @@ const Product = require('../models/productModel');
 // @ Route Get /api/v1/Products
 // @ Access Public
 exports.getProducts = asyncHandler(async (req, res) => {
+  // 1) Fileting
+  const queryStringObj = { ...req.query };
+  const execludesFields = ['page', 'limit', 'sort', 'fields'];
+  execludesFields.forEach((field) => delete queryStringObj[field]);
+  // console.log(req.query);
+  let queryStr = JSON.stringify(queryStringObj);
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`); // "\b  \b" -> to tell that i want the exacte value for gte|gt ... the same word
+  // g -> as if more than one value exist catch all of them not the only one
+  console.log(queryStringObj);
+  console.log(JSON.parse(queryStr));
+
+  // 2) Pagination
   const page = req.query.page * 1 || 1; // * 1 => to convert it to number
-  const limit = req.query.limit * 1 || 0;
+  const limit = req.query.limit * 1 || 50;
   const skip = (page - 1) * limit;
-  const products = await Product.find({}).skip(skip).limit(limit);
+
+  // build query
+  const mongooseQuery = Product.find(JSON.parse(queryStr)) // => find return query and await => execute query  // but we should build the query first and then execite it
+    .skip(skip) // so we can implement any method then execute query
+    .limit(limit);
+  // console.log('mongooseQuery', mongooseQuery);
+  // execute query
+  const products = await mongooseQuery;
+  console.log('products', products);
   res.status(200).json({ results: products.length, page, data: products });
 });
 //****** Get Products End********/
