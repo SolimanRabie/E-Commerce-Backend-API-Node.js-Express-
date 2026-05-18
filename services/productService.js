@@ -11,66 +11,21 @@ const ApiFeatures = require('../utils/apiFeatures');
 // @ Route Get /api/v1/Products
 // @ Access Public
 exports.getProducts = asyncHandler(async (req, res) => {
-  // 1) Fileting
-  // const queryStringObj = { ...req.query };
-  // const execludesFields = ['page', 'limit', 'sort', 'fields', 'keyword'];
-  // execludesFields.forEach((field) => delete queryStringObj[field]);
-  // // console.log(req.query);
-  // let queryStr = JSON.stringify(queryStringObj);
-  // queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`); // "\b  \b" -> to tell that i want the exacte value for gte|gt ... the same word
-  // // g -> as if more than one value exist catch all of them not the only one
-  // console.log(queryStringObj);
-  // console.log(JSON.parse(queryStr));
-
-  // 2) Pagination
-  // const page = req.query.page * 1 || 1; // * 1 => to convert it to number
-  // const limit = req.query.limit * 1 || 50;
-  // const skip = (page - 1) * limit;
-
   // build query
+  const documentsCount = await Product.countDocuments();
   const apiFeatures = new ApiFeatures(Product.find(), req.query)
     .filter()
-    .pagination()
+    .paginate(documentsCount)
     .sort()
-    .search();
+    .search('products');
 
+  const { mongooseQuery, paginationResult } = apiFeatures;
   // execute query
-  const products = await apiFeatures.mongooseQuery;
+  const products = await mongooseQuery;
   console.log('products', products);
-  res.status(200).json({ results: products.length, data: products });
-
-  // .skip(skip) // so we can implement any method then execute query
-  // .limit(limit);
-  // // 3) Sorting
-  // if (req.query.sort) {
-  //   console.log(req.query.sort);
-  //   // for sorting by more than one thing we must remove the ',' between them like => sort=price,-sold --> when i make mongooseQuery.sort(req.query.sort); ->> it sort by -> sort(price,-sold) but it must be like that -> sort(price -sold)
-  //   // so we will split it in the ',' and join again with space
-  //   // price,-sold =>[price , -sort] => price -sort
-  //   const sortedBy = req.query.sort.split(',').join(' ');
-  //   mongooseQuery = mongooseQuery.sort(sortedBy);
-  // } else {
-  //   mongooseQuery = mongooseQuery.sort('createdAt');
-  // }
-  // // 4) Fields Limiting
-  // if (req.query.fields) {
-  //   const fields = req.query.fields.split(',').join(' ');
-  //   mongooseQuery = mongooseQuery.select(fields);
-  // } else {
-  //   mongooseQuery = mongooseQuery.select('-__v');
-  // }
-
-  // 5) Searching
-  // if (req.query.keyword) {
-  //   console.log('req.query.keyword', req.query.keyword);
-  //   const query = {};
-  //   query.$or = [
-  //     { title: { $regex: req.query.keyword, $options: 'i' } },
-  //     { description: { $regex: req.query.keyword, $options: 'i' } },
-  //   ];
-  //   console.log('query', query);
-  //   mongooseQuery = mongooseQuery.find(query);
-  // }
+  res
+    .status(200)
+    .json({ results: products.length, paginationResult, data: products });
 });
 //****** Get Products End********/
 

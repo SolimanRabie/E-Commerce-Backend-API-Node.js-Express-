@@ -47,14 +47,19 @@ class ApiFeatures {
   }
 
   // 5) Searching
-  search() {
+  search(modelName) {
     if (this.queryString.keyword) {
       console.log('req.query.keyword', this.queryString.keyword);
-      const query = {};
-      query.$or = [
-        { title: { $regex: this.queryString.keyword, $options: 'i' } },
-        { description: { $regex: this.queryString.keyword, $options: 'i' } },
-      ];
+      let query = {};
+      if (modelName === 'products') {
+        query.$or = [
+          { title: { $regex: this.queryString.keyword, $options: 'i' } },
+          { description: { $regex: this.queryString.keyword, $options: 'i' } },
+        ];
+      } else {
+        query = { name: { $regex: this.queryString.keyword, $options: 'i' } };
+      }
+
       console.log('query', query);
       this.mongooseQuery = this.mongooseQuery.find(query);
     }
@@ -62,12 +67,28 @@ class ApiFeatures {
   }
 
   // 2) Pagination
-  pagination() {
+  paginate(countDocuments) {
     const page = this.queryString.page * 1 || 1; // * 1 => to convert it to number
     const limit = this.queryString.limit * 1 || 50;
     const skip = (page - 1) * limit;
     this.mongooseQuery = this.mongooseQuery.skip(skip).limit(limit);
+    console.log('limit', typeof limit);
+    const pagination = {};
+    pagination.currentPage = page;
+    pagination.limit = limit;
+    pagination.numbersOfPages = Math.ceil(countDocuments / limit);
 
+    // next page
+    if (page < pagination.numbersOfPages) {
+      pagination.nextPage = page + 1;
+    }
+
+    // previous page
+    if (page > 1) {
+      pagination.prev = page - 1;
+    }
+
+    this.paginationResult = pagination;
     return this;
   }
 }
