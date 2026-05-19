@@ -9,6 +9,7 @@ const {
   getCategory,
   updateCategory,
   deleletedCategory,
+  uploadCategoryImage,
 } = require('../services/categoryService');
 
 //*******validation middelware start*****//
@@ -18,7 +19,7 @@ const {
   updateCategoryValidator,
   deleteCategoryValidator,
 } = require('../utils/validators/categoryValidator');
-//*******validation middelware start*****//
+//*******validation middelware End*****//
 
 //******* Nested Route Start********/
 const subCategoriesRoute = require('./subCategoryRoute');
@@ -33,7 +34,7 @@ router.use('/:categoryId/subcategories', subCategoriesRoute);
 router
   .route('/')
   .get(getCategories) //** get getCategories */
-  .post(createCategoryValidator, createCategory); //** Create category */
+  .post(uploadCategoryImage, createCategoryValidator, createCategory); //** Create category */
 //**Routre '/' End***/
 
 //**Route '/:id'  Start***/

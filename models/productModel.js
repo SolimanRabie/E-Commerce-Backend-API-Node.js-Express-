@@ -72,12 +72,11 @@ const productSchema = new mongoose.Schema(
 );
 
 // Mongoose Query middelware
-productSchema.pre(/^find/, function (next) {
+productSchema.pre(/^find/, function () {
   this.populate({
     path: 'category',
     select: 'name',
   });
-  // next();
 });
 
 module.exports = mongoose.model('Product', productSchema);
