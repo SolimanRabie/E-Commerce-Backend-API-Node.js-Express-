@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv'); // if the file name is only => .env
+// eslint-disable-next-line no-unused-vars
 const { Error } = require('mongoose');
 
 dotenv.config({ path: './config.env' }); // should be add as the file name is 'config.env'
@@ -18,10 +19,12 @@ const dbConnection = require('./config/database');
 const categoryRoute = require('./routes/categoryRoute');
 const subCategoryRoute = require('./routes/subCategoryRoute');
 const brandRoute = require('./routes/brandRoute');
+const productRoute = require('./routes/productsRoute');
 // ********** import Routes End**********//
 
 // express app
 const app = express();
+app.set('query parser', 'extended'); // for filtering products
 // express app
 dbConnection();
 //********* middelwares start********** *//
@@ -37,6 +40,7 @@ if (process.env.NODE_ENV === 'development') {
 app.use('/api/v1/categories', categoryRoute);
 app.use('/api/v1/subcategories', subCategoryRoute);
 app.use('/api/v1/brands', brandRoute);
+app.use('/api/v1/products', productRoute);
 
 app.use((req, res, next) => {
   // const err = new Error(`can't find this route : ${req.originalUrl}`);
