@@ -1,6 +1,7 @@
 const express = require('express');
 const morgan = require('morgan');
 const dotenv = require('dotenv'); // if the file name is only => .env
+// eslint-disable-next-line no-unused-vars
 const { Error } = require('mongoose');
 
 dotenv.config({ path: './config.env' }); // should be add as the file name is 'config.env'

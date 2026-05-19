@@ -1,88 +1,35 @@
 //****** imports start********* */
-const slugify = require('slugify');
-const asyncHandler = require('express-async-handler');
-const { json } = require('express');
-const ApiError = require('../utils/apiError');
 const Product = require('../models/productModel');
-const ApiFeatures = require('../utils/apiFeatures');
+const Factory = require('./handlerFactory');
 //****** imports End********* */
 
 //****** Get Products start********/
 // @ Route Get /api/v1/Products
 // @ Access Public
-exports.getProducts = asyncHandler(async (req, res) => {
-  // build query
-  const documentsCount = await Product.countDocuments();
-  const apiFeatures = new ApiFeatures(Product.find(), req.query)
-    .filter()
-    .paginate(documentsCount)
-    .sort()
-    .search('products');
-
-  const { mongooseQuery, paginationResult } = apiFeatures;
-  // execute query
-  const products = await mongooseQuery;
-  console.log('products', products);
-  res
-    .status(200)
-    .json({ results: products.length, paginationResult, data: products });
-});
+exports.getProducts = Factory.getAll(Product, 'products');
 //****** Get Products End********/
 
 //****** Get Spicified Product Start*******/
 // @ Route Get /api/v1/Products/:id
 // @ Access Public
-exports.getProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const product = await Product.findById(id);
-  if (!product) {
-    // res.status(404).json({ msg: "cat'n find this product of id : ", id });
-    return next(new ApiError(`cat'n find this product of id : ${id}`, 404));
-  }
-  res.status(200).json({ data: product });
-});
+exports.getProduct = Factory.getOne(Product);
 //****** Get Spicified Product End*******/
 
 //******* Create Product start*********/
 // @ Route Post /api/v1/Products
 // @ Access Private
-exports.createProduct = asyncHandler(async (req, res) => {
-  req.body.slug = slugify(req.body.title);
-  const product = await Product.create(req.body);
-  console.log(product);
-  res.status(201).json({ data: product });
-});
+exports.createProduct = Factory.createOne(Product);
 //******* Create Product End*********/
 
 //******* Update Product Start*******/
 // @ Route Put /api/v1/Products/:id
 // @ Access Private
-exports.updateProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  if (req.body.title) {
-    req.body.slug = slugify(req.body.title);
-  }
-  const product = await Product.findByIdAndUpdate({ _id: id }, req.body, {
-    new: true,
-  });
+exports.updateProduct = Factory.updateOne(Product);
 
-  if (!product) {
-    return next(new ApiError(`cat'n find this product of id : ${id}`, 404));
-  }
-  res.status(200).json({ data: product });
-});
 //******* Update Product End*******/
 
 //******* Delete Product Start*******/
 // @ Route post /api/v1/Product/:id
 // @ Access Private
-exports.deleletedProduct = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
-  const product = await Product.findByIdAndDelete(id);
-  console.log('product', product);
-  if (!product) {
-    return next(new ApiError(`cat'n find this product of id : ${id}`, 404));
-  }
-  res.status(204).send();
-});
+exports.deleletedProduct = Factory.deleteOne(Product);
 //******* Delete product End*******/
