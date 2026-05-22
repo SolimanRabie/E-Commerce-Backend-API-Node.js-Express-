@@ -9,6 +9,8 @@ const {
   getBrand,
   updateBrand,
   deletebrand,
+  uploadBrandImage,
+  resizeImage,
 } = require('../services/brandService');
 
 //*******validation middelware start*****//
@@ -33,14 +35,14 @@ router.use('/:categoryId/subcategories', subCategoriesRoute);
 router
   .route('/')
   .get(getBrands) //** get getBrands */
-  .post(createBrandValidator, createBrand); //** Create category */
+  .post(uploadBrandImage, resizeImage, createBrandValidator, createBrand); //** Create category */
 //**Routre '/' End***/
 
 //**Route '/:id'  Start***/
 router
   .route('/:id')
   .get(getBrandValidator, getBrand) //** get spicified Brand */
-  .put(updateBrandValidator, updateBrand) //**Update Brand
+  .put(uploadBrandImage, resizeImage, updateBrandValidator, updateBrand) //**Update Brand
   .delete(deleteBrandValidator, deletebrand); //**Delete Brand
 //**Route '/:id' End***/
 

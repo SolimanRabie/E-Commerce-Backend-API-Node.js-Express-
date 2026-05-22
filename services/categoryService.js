@@ -1,7 +1,38 @@
+/* eslint-disable import/no-unresolved */
 //****** imports start********* */
-const Category = require('../models/categoryModel');
+const multer = require('multer');
+const asyncHandler = require('express-async-handler');
+
+const { v4: uuidv4 } = require('uuid');
+
 const Factory = require('./handlerFactory');
+const ApiError = require('../utils/apiError');
+const { uploadSingleImage } = require('../middelWares/uploadImageMiddelware');
+const Category = require('../models/categoryModel');
+
+// eslint-disable-next-line import/no-extraneous-dependencies, import/order
+const sharp = require('sharp');
+
 //****** imports End********* */
+
+//****** Multer Uploades Start *********/
+exports.uploadCategoryImage = uploadSingleImage('image');
+//****** Multer Uploades End *********/
+
+//***** Sharp Middelware for resizing Start******/
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  const fileName = `category-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(600, 600)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/categories/${fileName}`);
+
+  // Save Image in DB
+  req.body.image = fileName;
+  next();
+});
+//***** Sharp Middelware for resizing End******/
 
 //****** Get Categories start********/
 // @ Route Get /api/v1/categories

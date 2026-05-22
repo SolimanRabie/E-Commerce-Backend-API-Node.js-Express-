@@ -1,7 +1,31 @@
 //****** imports start********* */
-const Brand = require('../models/brandModel');
+const asyncHandler = require('express-async-handler');
 const Factory = require('./handlerFactory');
+const { uploadSingleImage } = require('../middelWares/uploadImageMiddelware');
+const sharp = require('sharp');
+const { v4: uuidv4 } = require('uuid');
+
+const Brand = require('../models/brandModel');
 //****** imports End********* */
+
+//****** Multer Uploades Start *********/
+exports.uploadBrandImage = uploadSingleImage('image');
+//****** Multer Uploades End *********/
+
+//***** Sharp Middelware for resizing Start******/
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  const fileName = `brand-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(400, 400)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/brands/${fileName}`);
+
+  // Save Image in DB
+  req.body.image = fileName;
+  next();
+});
+//***** Sharp Middelware for resizing End******/
 
 //****** Get Brands start********/
 // @ Route Get /api/v1/brands

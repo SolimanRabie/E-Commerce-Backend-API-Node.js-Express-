@@ -69,6 +69,7 @@ exports.createProductsValidator = [
     .withMessage('subCategories must be an array'),
   check('subCategories.*').isMongoId().withMessage('invalid id formate'),
   check('subCategories')
+    .optional()
     .custom(async (subCategoryIds) => {
       const subCategory = await SubCategory.find({
         _id: { $exists: true, $in: subCategoryIds },
