@@ -23,6 +23,23 @@ const brandSchema = new Schema(
 );
 //******** schema end*******//
 
+/*******SET image url End ********/
+const setImageUrl = (doc) => {
+  if (doc.image) {
+    const imageUrl = `${process.env.BASE_URL}/brands/${doc.image}`;
+    doc.image = imageUrl;
+  }
+};
+// for findOne ,findAll and update
+brandSchema.post('init', (doc) => {
+  setImageUrl(doc);
+});
+
+// for create
+brandSchema.post('save', (doc) => {
+  setImageUrl(doc);
+});
+
 //(2) create model ********* model start ******//
 const brandModel = mongoose.model('Brand', brandSchema);
 // *********** model end *********//

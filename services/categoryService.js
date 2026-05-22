@@ -1,41 +1,38 @@
 /* eslint-disable import/no-unresolved */
 //****** imports start********* */
-// eslint-disable-next-line import/no-extraneous-dependencies
 const multer = require('multer');
+const asyncHandler = require('express-async-handler');
 
-// eslint-disable-next-line node/no-missing-require
 const { v4: uuidv4 } = require('uuid');
 
-const Category = require('../models/categoryModel');
 const Factory = require('./handlerFactory');
 const ApiError = require('../utils/apiError');
+const { uploadSingleImage } = require('../middelWares/uploadImageMiddelware');
+const Category = require('../models/categoryModel');
+
+// eslint-disable-next-line import/no-extraneous-dependencies, import/order
+const sharp = require('sharp');
 
 //****** imports End********* */
 
 //****** Multer Uploades Start *********/
-const multerStorage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, 'uploads/categories');
-  },
-  filename: function (req, file, cb) {
-    // category-${id}-Date.now().jpeg
-    const exe = file.mimetype.split('/')[1];
-    const fileName = `category-${uuidv4()}-${Date.now()}.${exe}`;
-    cb(null, fileName);
-  },
-});
-
-const multerFilter = function fileFilter(req, file, cb) {
-  if (file.mimetype.startsWith('image')) {
-    cb(null, true);
-  } else {
-    cb(new ApiError('only image Allowed ', 400), false);
-  }
-};
-const upload = multer({ storage: multerStorage, fileFilter: multerFilter });
-
-exports.uploadCategoryImage = upload.single('image');
+exports.uploadCategoryImage = uploadSingleImage('image');
 //****** Multer Uploades End *********/
+
+//***** Sharp Middelware for resizing Start******/
+exports.resizeImage = asyncHandler(async (req, res, next) => {
+  const fileName = `category-${uuidv4()}-${Date.now()}.jpeg`;
+  await sharp(req.file.buffer)
+    .resize(600, 600)
+    .toFormat('jpeg')
+    .jpeg({ quality: 90 })
+    .toFile(`uploads/categories/${fileName}`);
+
+  // Save Image in DB
+  req.body.image = fileName;
+  next();
+});
+//***** Sharp Middelware for resizing End******/
 
 //****** Get Categories start********/
 // @ Route Get /api/v1/categories

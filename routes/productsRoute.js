@@ -11,6 +11,8 @@ const {
   createProduct,
   updateProduct,
   deleletedProduct,
+  uploadProductsImages,
+  resizeProductImage,
 } = require('../services/productService');
 //******* Services End ********/
 
@@ -25,12 +27,25 @@ const {
 
 //******** Import End  *********//
 
-router.route('/').get(getProducts).post(createProductsValidator, createProduct);
+router
+  .route('/')
+  .get(getProducts)
+  .post(
+    uploadProductsImages,
+    resizeProductImage,
+    createProductsValidator,
+    createProduct,
+  );
 
 router
   .route('/:id')
   .get(getProductValidator, getProduct)
-  .put(updateProductValidator, updateProduct)
+  .put(
+    uploadProductsImages,
+    resizeProductImage,
+    updateProductValidator,
+    updateProduct,
+  )
   .delete(deleteProductValidator, deleletedProduct);
 
 module.exports = router;
